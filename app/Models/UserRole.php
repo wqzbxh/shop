@@ -30,6 +30,7 @@ class UserRole extends Model
     public $timestamps = false;
 
 
+    public static $queryField = ['role_name','desc'];
 
     public function menus()
     {

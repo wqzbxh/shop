@@ -81,7 +81,7 @@ class CommonService
             //全局查找，仅当$filtersArr为空时生效，否则以为主$filtersArr
             if(count($filtersArr) == false && !empty($globalFilter))
             {
-                foreach (UserModel::$queryField as $condition) {
+                foreach ($resourceModel::$queryField as $condition) {
                     $query->orWhere(function ($query) use ($condition,$globalFilter) {
                         $query->where($condition, 'LIKE', '%' . $globalFilter . '%');
                     });
