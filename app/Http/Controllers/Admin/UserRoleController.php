@@ -26,4 +26,14 @@ class UserRoleController extends Controller
     {
         return (new UserRoleService())->getList($request);
     }
+
+    /**
+     * 删除操作
+     * @param Request $request
+     * @return array
+     */
+    public function userRoleDelete(Request $request)
+    {
+        return  (new UserRoleService())->delete($request);
+    }
 }

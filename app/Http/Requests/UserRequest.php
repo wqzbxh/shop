@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
+
 class UserRequest extends FormRequest
 {
     /**
@@ -21,24 +23,70 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        // 根据场景决定是否需要验证 name 字段
-        $nameRules = $this->isRegisterRequest() ? 'required|string|max:60' : '';
-        $emailRules = $this->isRegisterRequest() ? 'required|email|unique:admin_user': 'required|email';
 
+        $pathRules = $this->isGetPath();
+
+        switch ($pathRules){
+            case 'api/register':
+                return $this->registerReques();
+                break;
+            case 'api/user':
+                return $this->userReques();
+                break;
+            default:
+                return $this->defaultReques();
+                break;
+        }
+
+
+    }
+
+    /**
+     *默认匹配
+     * @return string[]
+     */
+
+    public function defaultReques()
+    {
         return [
-            'name' => $nameRules,
-            'email' => $emailRules,
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ];
+    }
+    /**
+     * 注册匹配
+     * @return string[]
+     */
+
+    public function registerReques()
+    {
+        return [
+            'name' => 'required|email|unique:admin_user',
+            'email' => 'required|string|max:60',
             'password' => 'required|string|min:6',
         ];
     }
 
     /**
-     * 判断是否为注册请求
-     *
-     * @return bool
+     * 后台创建用户规则
+     * @return string[]
      */
-    public function isRegisterRequest()
+    public function userReques()
     {
-        return $this->path() === 'api/register';
+        $request = new Request();
+        var_dump($request->method());
+        $pd =  $request->method() === 'PUT' ?  'string|min:6': 'required|string|min:6';
+        $email =  $request->method() === 'PUT' ?  'required|email':  'required|email|unique:admin_user';
+        return [
+            'email' => $email,
+            'name' => 'required|string|max:60',
+            'phone' => 'required|string|unique:admin_user',
+            'password' => $pd,
+        ];
+    }
+
+    public function isGetPath()
+    {
+        return $this->path();
     }
 }

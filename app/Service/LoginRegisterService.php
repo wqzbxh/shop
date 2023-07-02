@@ -8,6 +8,7 @@
 namespace App\Service;
 use App\Models\RegistrationLinksModel;
 use App\Models\UserModel;
+use App\Utils\Tools;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Request;
@@ -28,14 +29,10 @@ class LoginRegisterService
         $password = $request->get('password');
         //获取邮箱
         $email = $request->get('email');
-        //获取一个随机盐，随机的一个字符串
-        $salt = CommonService::randString(16);
-        // 将盐值和密码组合
-        $combinedString = $salt . $password;
-        // 盐值：
-        $dataRecord['salt'] = $salt;
-        // 生成 SHA-256 哈希值
-        $dataRecord['password'] =  hash('sha256', $combinedString);
+        //生成密码
+        $newPasswordWithSalt = Tools::createPassword($password);
+        $dataRecord['salt'] = $newPasswordWithSalt['salt'];
+        $dataRecord['password'] = $newPasswordWithSalt['password'];
 //      创建
         $result = (new UserModel)->create($dataRecord);
 //        添加记录失败

@@ -10,46 +10,94 @@ namespace App\Service;
 
 use App\Http\Resources\UserResource;
 use App\Models\UserModel;
+use App\Utils\Tools;
 use Illuminate\Support\Facades\DB;
 
 class UserService
 {
-    public function createUser($data)
+
+    protected $userDB;
+
+    public function __construct()
     {
-        // 创建新用户的逻辑
-        $user = User::create($data);
-
-        // 可以在这里执行其他操作，如发送欢迎邮件、分配角色等
-
-        return $user;
+        $this->userDB = app(UserModel::class);
     }
 
-    public function getUser($id)
-    {
-        // 获取用户的逻辑
-        $user = User::findOrFail($id);
 
-        return $user;
+    public  function  createUser($request)
+    {
+        $this->userDB->name = $request->get('name');
+        $this->userDB->idcard = $request->get('idcard');
+        $this->userDB->email = $request->get('email');
+        $this->userDB->status = $request->get('status');
+        $this->userDB->phone = $request->get('phone');
+        $this->userDB->realname = $request->get('realname');
+        $this->userDB->role_id = $request->get('role_id');
+        $newPasswordWithSalt = Tools::createPassword($request->get('password'));
+        $this->userDB->password =$newPasswordWithSalt['password'];
+        $this->userDB->salt =$newPasswordWithSalt['salt'];
+        $result = $this->userDB->save();
+        //添加记录失败
+        if($result == false) return  MsgService::msg(20002, []);
+        logsService::Logs('cj','创建了用户'. $request->get('email').'的记录',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
+        return  MsgService::msg(200, []);
+
     }
 
-    public function updateUser($id, $data)
+    /**
+     * @return void
+     */
+    public function updateUser($request)
     {
-        // 更新用户的逻辑
-        $user = User::findOrFail($id);
-        $user->update($data);
+        //构建修改条件
+        $updateCondition = [];
+        if (empty($request->get('id')))
+            return MsgService::msg(31000, []);
+        $where = ['id' => $request->get('id')];
 
-        return $user;
+        $originValusArr = CommonService::getOne(UserModel::class,$where);
+        $request->get('name') ? $updateCondition['name']  = $request->get('name') : '';
+        $request->get('email') ? $updateCondition['email']  = $request->get('email') : '';
+        $request->get('status') ? $updateCondition['status']  = $request->get('status') : '';
+        $request->get('phone') ? $updateCondition['phone']  = $request->get('phone') : '';
+        $request->get('realname') ? $updateCondition['realname']  = $request->get('realname') : '';
+        $request->get('role_id') ? $updateCondition['role_id']  = $request->get('role_id') : '';
+        $request->get('idcard') ? $updateCondition['idcard']  = $request->get('idcard') : '';
+
+        if($request->get('password')){
+            $newPasswordWithSalt = Tools::createPassword($request->get('password'));
+            $updateCondition['password'] =$newPasswordWithSalt['password'];
+            $updateCondition['salt'] =$newPasswordWithSalt['salt'];
+        }
+
+        $result = UserModel::where($where)->update($updateCondition);
+        if(!$result)
+            return MsgService::msg(20015, []);
+        ModificationlogsService::ModificationLog(UserModel::class,$request->get('id'),$updateCondition,$originValusArr);
+        logsService::Logs('gx','修改用户信息ID为'.$originValusArr['id'].'的记录，此时名称为'.$request->get('name'),$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
+        return MsgService::msg(200, []);
     }
 
-    public function deleteUser($id)
+
+    /**
+     * @param $request
+     * @return array
+     */
+
+    public function delete($request)
     {
-        // 删除用户的逻辑
-        $user = User::findOrFail($id);
-        $user->delete();
-
-        return true;
+        if (empty($request->get('id')))
+            return MsgService::msg(31000, []);
+        $where = ['id' => $request->get('id')];
+        $updateCondition['is_del'] = 1;
+        $result = UserModel::where($where)->update($updateCondition);
+        if(!$result){
+            return MsgService::msg(20015, []);
+        }
+        $originValusArr = CommonService::getOne(UserModel::class,$where);
+        logsService::Logs('sc','对用户ID为'.$request->get('id').'的记录进行删除',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
+        return  MsgService::msg(200,$originValusArr);
     }
-
     public function getList($request)
     {
         $resource = CommonService::getList(UserModel::class,$request);

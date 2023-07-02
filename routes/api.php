@@ -31,10 +31,16 @@ Route::delete('/goods_category', [\App\Http\Controllers\Admin\GoodsCategoryContr
 
 
 Route::get('/user', [\App\Http\Controllers\Admin\UserController::class, 'getUser'])->middleware('information');
+Route::post('/user', [\App\Http\Controllers\Admin\UserController::class, 'userAction'])->middleware('information');
+Route::put('/user', [\App\Http\Controllers\Admin\UserController::class, 'userAction'])->middleware('information');
+Route::delete('/user', [\App\Http\Controllers\Admin\UserController::class, 'userDelete'])->middleware('information');
 
 
 //获取菜单全部
 Route::get('/get_menu', [\App\Http\Controllers\Admin\MenuController::class, 'getMenu'])->middleware('information');
 //获取菜单全部
 Route::post('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class, 'userRoleAction'])->middleware('information');
+Route::put('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class, 'userRoleAction'])->middleware('information');
 Route::get('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class, 'userRoleList'])->middleware('information');
+Route::delete('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class, 'userRoleDelete'])->middleware('information');
+

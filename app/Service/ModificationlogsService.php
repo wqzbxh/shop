@@ -18,6 +18,8 @@ class ModificationlogsService
 
     const ORMTOTABLE =[
         'App\Models\GoodsCategory' => 'goods_category',
+        'App\Models\UserRole' => 'admin_role',
+        'App\Models\UserModel' => 'admin_user',
     ];
     /**
      * @param $orm 数据库名字

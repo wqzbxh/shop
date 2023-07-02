@@ -29,9 +29,10 @@ class UserRole extends Model
      */
     public $timestamps = false;
 
-
+    //查询字段
     public static $queryField = ['role_name','desc'];
-
+    //选择字段
+    public static $selectField = ['id','role_name'];
     public function menus()
     {
         return $this->hasMany(menuModel::class);

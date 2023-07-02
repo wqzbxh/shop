@@ -14,13 +14,39 @@ class UserRoleResource extends JsonResource
      */
     public function toArray($request)
     {
+        switch ($request->get('type')) {
+            case 'select':
+                return $this->selectFormat();
+                break;
+            default:
+                return [
+                    'id' => $this->id,
+                    'role_name' => $this->role_name,
+                    'desc' => $this->desc,
+                    'menu_id' => explode(',', $this->menu_id)
+                ];
+                break;
+        }
+    }
+
+    /**
+     * 给下拉框的选择返回格式
+     * @return array
+     */
+    public function selectFormat()
+    {
         return [
-            'id' => $this->id,
-            'role_name' => $this->role_name,
-            'desc' => $this->desc,
-            'menu_id' => explode(',',$this->menu_id) ,
-            'idcard' => $this->idcard,
-            'phone' => $this->phone,
+            'value' => (string)$this->id,
+            'label' => $this->role_name,
         ];
+    }
+
+    /**
+     * 默认返回格式
+     * @return void
+     */
+    public function defaultFormat()
+    {
+
     }
 }
