@@ -23,7 +23,6 @@ class UserService
         $this->userDB = app(UserModel::class);
     }
 
-
     public  function  createUser($request)
     {
         $this->userDB->name = $request->get('name');

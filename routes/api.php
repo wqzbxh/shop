@@ -44,3 +44,6 @@ Route::put('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class,
 Route::get('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class, 'userRoleList'])->middleware('information');
 Route::delete('/user_role', [\App\Http\Controllers\Admin\UserRoleController::class, 'userRoleDelete'])->middleware('information');
 
+
+Route::post('/goods_type', [\App\Http\Controllers\Admin\GoodsTypeController::class, 'typeAction'])->middleware('information');
+
