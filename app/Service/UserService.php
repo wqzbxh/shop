@@ -103,6 +103,5 @@ class UserService
         $data['data'] =UserResource::collection($resource['resource']);
         $data['total'] = $resource['count'];
         return  MsgService::msg(200, $data);
-
     }
 }

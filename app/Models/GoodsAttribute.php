@@ -27,4 +27,9 @@ class GoodsAttribute extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    public function goodsType()
+    {
+        return $this->belongsTo(GoodsType::class);
+    }
 }

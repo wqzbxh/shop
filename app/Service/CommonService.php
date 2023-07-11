@@ -34,7 +34,7 @@ class CommonService {
      * @param $request
      * @return array
      */
-    public  static  function getList($modelClass,$request) {
+    public  static  function getList($modelClass,$request,$other_table = []) {
         $returnData['count'] =  0;
         $returnData['resource'] =  [];
         //引用模型
@@ -71,7 +71,6 @@ class CommonService {
             $query->where('is_del', '=', '0');
             $count  = $query->count();
             //排序
-
             if(count($sortingArr) > 0) {
                 $orderBy = $sortingArr[0];
                 $rule = $orderBy['desc'] ? 'desc' : 'asc';

@@ -27,4 +27,14 @@ class GoodsType extends Model
      * @var bool
      */
     public $timestamps = false;
+
+
+    public static $queryField = ['name','create_at'];
+    /**
+     * 获得属性
+     */
+    public function goodsAttribute()
+    {
+        return $this->hasMany(GoodsAttribute::class);
+    }
 }

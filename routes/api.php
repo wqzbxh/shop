@@ -46,4 +46,5 @@ Route::delete('/user_role', [\App\Http\Controllers\Admin\UserRoleController::cla
 
 
 Route::post('/goods_type', [\App\Http\Controllers\Admin\GoodsTypeController::class, 'typeAction'])->middleware('information');
+Route::get('/goods_type', [\App\Http\Controllers\Admin\GoodsTypeController::class, 'getTypeList'])->middleware('information');
 
