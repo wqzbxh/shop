@@ -15,8 +15,11 @@ class Tools
      * @return string
      * 获取随机
      */
-    public static function randString(int $length): string {
+    public static function randString(int $length,string $type='alphanumeric'): string {
+
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@$%^&*(,.';
+        if ($type=='alphanumeric')
+            $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $randomString = substr(str_shuffle($characters), 0, $length);
         return $randomString;
     }

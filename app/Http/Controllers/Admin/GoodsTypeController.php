@@ -17,8 +17,18 @@ class GoodsTypeController extends Controller
 
         return (new GoodsTypeService())->createGoodType($request);
     }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
     public function getTypeList(Request $request)
     {
         return (new GoodsTypeService())->getList($request);
+    }
+
+    public function getTypeWithAttribute(Request $request)
+    {
+        return (new GoodsTypeService())->getTypeAttribute($request);
     }
 }

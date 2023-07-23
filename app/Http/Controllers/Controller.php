@@ -1,26 +1,15 @@
 <?php
-
 namespace App\Http\Controllers;
-
+use App\Service\UserService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class Controller
 {
-
-    public function index()
+    public function pagePrinting(Request $request)
     {
-        $arr = [65,23,35,67542,234,45323,2,23,1];
-        $len = count($arr);
-        for($i = 1; $i < $len; $i++) {
-            for ($j = $i -1 ; $j >=0  ; $j--)
-            {
-                if($arr[$j+1] < $arr[$j])
-                {
-                    $tmp = $arr[$j + 1];
-                    $arr[$j+1]=$arr[$j];
-                    $arr[$j] = $tmp;
-                }
-            }
-        }
-        return $arr;
+        $user =  (new UserService())->getList($request);
+        return view('page_printing/page_printing', ['users' => $user['data']['data']] );
     }
 }
+

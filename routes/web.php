@@ -19,4 +19,4 @@ Route::get('/', function () {
 
 Route::get('/register_by_eamil', [\App\Http\Controllers\Admin\LoginController::class, 'registerActivation']);
 
-Route::get('/test', [\App\Http\Controllers\Controller::class, 'index']);
+Route::get('/page_printing', [\App\Http\Controllers\Controller::class, 'pagePrinting']);

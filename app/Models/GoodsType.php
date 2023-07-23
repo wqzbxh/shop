@@ -35,6 +35,6 @@ class GoodsType extends Model
      */
     public function goodsAttribute()
     {
-        return $this->hasMany(GoodsAttribute::class);
+        return $this->hasMany(GoodsAttribute::class,'cid','id')->select(['id','attr_name']);
     }
 }

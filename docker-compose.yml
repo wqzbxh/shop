@@ -1,0 +1,48 @@
+#哑巴湖大水怪（王海洋）
+version: '3'
+
+services:
+    php:
+        build:
+            context: ./dockerConfig/php
+            dockerfile: Dockerfile
+        volumes:
+            - .:/var/www/html
+            - .env:/var/www/html/.env.bak
+        ports:
+            - "9000:9000"
+            - "6398:6379"
+        depends_on:
+            - db
+        networks:
+            - default
+
+    nginx:
+        image: nginx:latest
+        ports:
+            - "8081:80"
+        volumes:
+            - ./dockerConfig/nginx:/etc/nginx/conf.d
+            - .:/var/www/html
+        depends_on:
+            - php
+        networks:
+            - default
+
+    db:
+        image: mariadb
+        restart: always
+        ports:
+            - "3309:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: test_db
+            MYSQL_USER: test_user
+            MYSQL_PASSWORD: test_password
+        volumes:
+            - ./dockerConfig/db_data:/var/lib/mysql
+        networks:
+            - default
+
+
+

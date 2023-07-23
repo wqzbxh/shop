@@ -47,4 +47,11 @@ Route::delete('/user_role', [\App\Http\Controllers\Admin\UserRoleController::cla
 
 Route::post('/goods_type', [\App\Http\Controllers\Admin\GoodsTypeController::class, 'typeAction'])->middleware('information');
 Route::get('/goods_type', [\App\Http\Controllers\Admin\GoodsTypeController::class, 'getTypeList'])->middleware('information');
+Route::get('/goods_type_attribute', [\App\Http\Controllers\Admin\GoodsTypeController::class, 'getTypeWithAttribute'])->middleware('information');
+
+
+
+Route::post('/time_project', [\App\Http\Controllers\Admin\TimeProjectController::class, 'timeTrackerAction'])->middleware('information');
+Route::get('/time_project', [\App\Http\Controllers\Admin\TimeProjectController::class, 'timeTrackerList'])->middleware('information');
+
 
