@@ -26,17 +26,17 @@ class TimeTrackerService
 
     public function __construct()
     {
-        $this->goodTypeDB = app(GoodsType::class);
+        $this->goodTimeTrackerDB = app(GoodsType::class);
     }
-    public function createGoodType($request)
+    public function create($request)
     {
-        $this->goodTypeDB->name = $request->get('name');
-        $this->goodTypeDB->sort = $request->get('sort');
-        $this->goodTypeDB->is_use = $request->get('is_use') === true ? 1 : false ;
-        $result = $this->goodTypeDB->save();   //添加记录失败
+        $this->goodTimeTrackerDB->name = $request->get('name');
+        $this->goodTimeTrackerDB->sort = $request->get('sort');
+        $this->goodTimeTrackerDB->is_use = $request->get('is_use') === true ? 1 : false ;
+        $result = $this->goodTimeTrackerDB->save();   //添加记录失败
         if($result == false)
             return  MsgService::msg(20002, []);
-        $newId = $this->goodTypeDB->id;  // 获取新添加的记录的 ID
+        $newId = $this->goodTimeTrackerDB->id;  // 获取新添加的记录的 ID
         (new GoodsAttributeService())->create($request->get('attributes'),$newId);
         logsService::Logs('cj','创建了规格类型为'. $request->get('name').'的记录',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
         return  MsgService::msg(200, []);
