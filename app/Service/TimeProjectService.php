@@ -8,7 +8,9 @@
 
 namespace App\Service;
 
+use App\Http\Middleware\AuthMiddleware;
 use App\Http\Resources\GoodsTypeResource;
+use App\Http\Resources\TimeProjectResource;
 use App\Mail\RegisterMail;
 use App\Models\GoodsAttribute;
 use App\Models\GoodsAttributeValue;
@@ -18,6 +20,7 @@ use App\Models\TimeProjectModel;
 use App\Models\UserModel;
 use App\Utils\Tools;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Exception;
 
@@ -30,8 +33,15 @@ class TimeProjectService
     {
         $this->timeProjectDB = app(TimeProjectModel::class);
     }
-    public function create($request)
+    public function createOrUpdate($request)
     {
+        //修改
+        if($request->method()=== 'PUT'){
+            $id = $request->get('id');
+            if(empty($id)) return  MsgService::msg(40001, []);
+            $this->timeProjectDB = TimeProjectModel::find($id);
+            $originValusArr = $this->timeProjectDB->toArray();
+        }
         $this->timeProjectDB->project_no = $request->get('project_no') ?? Tools::randString(10,'alphanumeric');
         $this->timeProjectDB->cost = $request->get('cost') ?? '0.00' ;
         $this->timeProjectDB->budget = $request->get('budget') ?? '0.00';
@@ -41,25 +51,31 @@ class TimeProjectService
         $this->timeProjectDB->customer_name = $request->get('customer_name');
         $this->timeProjectDB->start_date = $request->get('start_date');
 //        保存之前的数据
-        $oldData = $this->timeProjectDB->getAttributes(); ;
+        $NewDataArray = $this->timeProjectDB->getAttributes(); ;
 //     保存记录，并捕获可能的异常
         try {
-            $result = $this->timeProjectDB->save();
+            $this->timeProjectDB->save();
         } catch (\Exception $e) {
-            return  MsgService::msg(20002, $oldData);
+            return  MsgService::msg(20002, $NewDataArray,$e->getMessage());
+        }
+        if($request->method()=== 'PUT'){
+            ModificationlogsService::ModificationLog(TimeProjectModel::class,$request->get('id'),$NewDataArray,$originValusArr);
+            logsService::Logs('gx','修改了ID：'. $id.'的项目记录,',$request->url(),$request->method(),serialize($request->getContent()),200, serialize($NewDataArray));
+        }else{
+            logsService::Logs('cj','创建了'. $request->get('name').'的记录,',$request->url(),$request->method(),serialize($request->getContent()),200, serialize($NewDataArray));
         }
 
-        logsService::Logs('cj','创建了'. $request->get('name').'的记录,',$request->url(),$request->method(),serialize($request->getContent()),200, serialize($oldData));
         return  MsgService::msg(200, []);
     }
 
     /**
      * @param $request
      * @return array
-     * 获取产品规格默
+     * 获取项目
      */
     public function getList($request)
     {
+
         $type =  $request->get('type') ?? false;
 //        当没有指定type值得时候以分页形式返回
         if($type == 'select'){
@@ -72,69 +88,23 @@ class TimeProjectService
             logsService::Logs('cx','请求时间项目下拉框-类型为'. $request->get('type').'的记录',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
             return  MsgService::msg(200, $data);
         }
-        $resource = CommonService::getList(GoodsType::class,$request);
-        $goodtypeList = $resource['resource']->toArray();
-        $returnArray=[];
-        if(!empty($goodtypeList)){
-            $ids = collect($goodtypeList)->pluck('id');
-            $filteredAttributes = GoodsAttribute::whereIn('cid', $ids)->get();
-            $attributes = $filteredAttributes->toArray();
-            foreach ($goodtypeList as $item)
-            {
-                $itemArray = [];
-                $itemArray['name'] = $item['name'];
-                $itemArray['created_at'] = $item['created_at'];
-                $itemArray['id'] = $item['id'];
-                $itemArray['filteredAttributesItem']=[];
-                foreach ($attributes as $attributesItem)
-                {
-                    if($item['id'] == $attributesItem['cid']){
-                        array_push($itemArray['filteredAttributesItem'],$attributesItem);
-                    }
-                }
-                array_push($returnArray,$itemArray);
-            }
-
-        }
-        $data['count'] = $resource['count'];
-        $data['data'] = $returnArray;
+        $resource = CommonService::getList(TimeProjectModel::class,$request,[['user_id', '=', AuthMiddleware::$userInfo['user_id']]]);
+        $data['data'] =TimeProjectResource::collection($resource['resource']);
+        $data['total'] = $resource['count'];
+        Log::info('This is an info log message.');
+        Log::debug('Request handled by Swoole.');
+        logsService::Logs('cx','请求时间项目分页数据的记录',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
         return  MsgService::msg(200, $data);
     }
 
 
-    public function getTypeAttribute($request)
+
+    /**
+     * @param $request
+     * @return array
+     */
+    public function delete($request)
     {
-//        获取id
-        $id = $this->goodTypeDB->name = $request->get('id');
-        if(empty($id))  return  MsgService::msg(31001,[] );
-//        获取这个类型下面的id规格属性
-        try {
-//            利用模型一对多ORM找出Attribute表的相关的ID集合
-            $GoodsType= GoodsType::find($id);
-            $goodsAttribute = $GoodsType->goodsAttribute;
-            $data = $goodsAttribute->toArray();
-            $ids = collect($data)->pluck('id');
-//            获取具体的属性参数值和id
-            $filteredAttributeValues = GoodsAttributeValue::whereIn('attr_id', $ids)->select(['id','attr_value','attr_id'])->get();
-            $attributesValues = $filteredAttributeValues->toArray();
-//            组装数组进行返回
-            foreach ($data as $key=>$item){
-                $data[$key]['attr'] =[];
-                foreach($attributesValues as  $attributesValuestem){
-                    if($item['id'] == $attributesValuestem['attr_id']){
-                        $attributesValueArrayItem = array(
-                            'id'=>$attributesValuestem['id'],
-                            'attr_value'=>$attributesValuestem['attr_value'],
-                            'attr_id'=>$attributesValuestem['attr_id'],
-                        );
-                      array_push($data[$key]['attr'],$attributesValueArrayItem);
-                    }
-                }
-            }
-            logsService::Logs('cx','请求商品规格id为'.$id.'的记录:GoodService->getTypeAttribute',$request->url(),$request->method(),serialize($request->getContent()),200, serialize($data));
-        }catch (Exception $exception){
-            $data=[];
-        }
-        return  MsgService::msg(200, $data);
+        return  CommonService::delete(TimeProjectModel::class,$request);
     }
 }

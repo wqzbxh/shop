@@ -20,6 +20,8 @@ class ModificationlogsService
         'App\Models\GoodsCategory' => 'goods_category',
         'App\Models\UserRole' => 'admin_role',
         'App\Models\UserModel' => 'admin_user',
+        'App\Models\TimeTrackerModel' => 'time_tracker',
+        'App\Models\TimeProjectModel' => 'time_project',
     ];
     /**
      * @param $orm 数据库名字

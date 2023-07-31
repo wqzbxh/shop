@@ -52,6 +52,16 @@ Route::get('/goods_type_attribute', [\App\Http\Controllers\Admin\GoodsTypeContro
 
 
 Route::post('/time_project', [\App\Http\Controllers\Admin\TimeProjectController::class, 'timeTrackerAction'])->middleware('information');
+Route::put('/time_project', [\App\Http\Controllers\Admin\TimeProjectController::class, 'timeTrackerAction'])->middleware('information');
 Route::get('/time_project', [\App\Http\Controllers\Admin\TimeProjectController::class, 'timeTrackerList'])->middleware('information');
+Route::delete('/time_project', [\App\Http\Controllers\Admin\TimeProjectController::class, 'timeTrackerDelete'])->middleware('information');
 
+
+
+Route::post('/timetracker', [\App\Http\Controllers\Admin\TimeTrackController::class, 'timeTrackerAction'])->middleware('information');
+
+Route::put('/timetracker', [\App\Http\Controllers\Admin\TimeTrackController::class, 'timeTrackerAction'])->middleware('information');
+
+Route::get('/timetracker', [\App\Http\Controllers\Admin\TimeTrackController::class, 'timeTrackerList'])->middleware('information');
+Route::delete('/timetracker', [\App\Http\Controllers\Admin\TimeTrackController::class, 'timeTrackerDelete'])->middleware('information');
 

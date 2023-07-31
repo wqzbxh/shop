@@ -26,16 +26,15 @@ class TimeProjectRequset extends FormRequest
     {
 
         $pathRules = $this->isGetMethod();
-
         switch ($pathRules){
             case 'POST':
                 return $this->createRule();
                 break;
             case 'PUT':
-                return $this->createRule();
+                return $this->updateRule();
                 break;
             default:
-                return $this->createRule();
+                return $this->updateRule();
                 break;
         }
 
@@ -50,6 +49,18 @@ class TimeProjectRequset extends FormRequest
     {
         return [
             'name' => 'required|string|unique:time_project|max:60',
+            'customer_name'=> 'required|string',
+            'info'=> 'required|string',
+            'time_estimate'=> 'required|string',
+        ];
+    }
+
+    /**
+     * @return string[]修改规则
+     */
+    public function updateRule()
+    {
+        return [
             'customer_name'=> 'required|string',
             'info'=> 'required|string',
             'time_estimate'=> 'required|string',

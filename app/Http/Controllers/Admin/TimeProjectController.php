@@ -13,10 +13,7 @@ class TimeProjectController extends Controller
     //
     public function timeTrackerAction(TimeProjectRequset $request)
     {
-        if($request->method()=== 'PUT')
-            return  (new TimeProjectService())->updateUser($request);
-
-        return (new TimeProjectService())->create($request);
+        return (new TimeProjectService())->createOrUpdate($request);
     }
 
     /**获取时间项目
@@ -27,5 +24,13 @@ class TimeProjectController extends Controller
     {
         return (new TimeProjectService())->getList($request);
     }
-
+    /**
+     * 删除操作
+     * @param Request $request
+     * @return array
+     */
+    public function timeTrackerDelete(Request $request)
+    {
+        return  (new TimeProjectService())->delete($request);
+    }
 }

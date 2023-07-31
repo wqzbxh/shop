@@ -14,6 +14,14 @@ class TimeProjectResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'id' => (string)$this->id,
+            'name' => $this->name,
+            'project_no' => $this->project_no,
+            'start_date' => $this->start_date,
+            'time_estimate' => $this->time_estimate,
+            'info' => $this->info,
+            'customer_name' => $this->customer_name,
+        ];
     }
 }

@@ -34,7 +34,7 @@ class CommonService {
      * @param $request
      * @return array
      */
-    public  static  function getList($modelClass,$request,$other_table = []) {
+    public  static  function getList($modelClass,$request,$whereOther = []) {
         $returnData['count'] =  0;
         $returnData['resource'] =  [];
         //引用模型
@@ -49,8 +49,9 @@ class CommonService {
         $filtersArr = json_decode($filters,true);
         //排序条件格式化
         $sortingArr = json_decode($sorting,true);
-        //设置了具体filters字段则$globalFilter失效
+        //设置了具体filters字段则$globalFilter失效.
         $where = [];
+
         if(count($filtersArr) > 0 ) {
             foreach ($filtersArr as  $value) {
                 $where[] = [$value['id'], 'like', '%'.$value['value'].'%'];
@@ -59,6 +60,12 @@ class CommonService {
         try {
             //构造查询器
             $query = $resourceModel::where($where);
+            if(sizeof($whereOther)>0){
+                foreach ($whereOther as  $key=>$item)
+                {
+                    $query->where($item[0],$item[1],$item[2]);
+                }
+            }
             //全局查找，仅当$filtersArr为空时生效，否则以为主$filtersArr
             if(count($filtersArr) == false && !empty($globalFilter)) {
                 foreach ($resourceModel::$queryField as $condition) {
@@ -97,5 +104,25 @@ class CommonService {
         $returnData['resource'] =  $resource;
         return  $returnData;
 
+    }
+
+
+    public static function delete($modelClass,$request)
+    {
+        if (empty($request->get('id')))
+            return MsgService::msg(31000, []);
+        $where = ['id' => $request->get('id')];
+        //引用模型
+        $resourceModel = app($modelClass);
+
+        $updateCondition['is_del'] = 1;
+        $result = $resourceModel->where($where)->update($updateCondition);
+        if(!$result){
+            return MsgService::msg(20015, []);
+        }
+        $originValusArr = self::getOne($modelClass,$where);
+        ModificationlogsService::ModificationLog($modelClass,$request->get('id'),$updateCondition,$originValusArr);
+        logsService::Logs('sc','对ID为'.$request->get('id').'的记录进行删除',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
+        return  MsgService::msg(200,$originValusArr);
     }
 }

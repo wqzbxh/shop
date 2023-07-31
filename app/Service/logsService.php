@@ -11,6 +11,7 @@ namespace App\Service;
 use App\Http\Middleware\AuthMiddleware;
 use App\Models\LogsModel;
 use App\Models\ModificationlogsModel;
+use Illuminate\Http\Request;
 
 class logsService
 {
@@ -44,9 +45,11 @@ class logsService
      */
     public static function Logs($action = 'ty',$desc,$request_url,$request_method,$request_payload,$response_code,$response_payload,$user_email = '',$user_id = '')
     {
+        // 通过Request对象获取IP地址
+        $request = Request::capture();
         $item['username'] = $user_email ? $user_email :  AuthMiddleware::$userInfo['email'];
         $item['user_id'] =  $user_id ? $user_id : AuthMiddleware::$userInfo['user_id'];
-        $item['ip_address'] =  $_SERVER['REMOTE_ADDR'];
+        $item['ip_address'] =  $request->ip();;
         $item['device_info'] =  $_SERVER['HTTP_USER_AGENT'];
         $item['request_url'] =$request_url;
         $item['action'] = self::ACTIONTYPE[$action];

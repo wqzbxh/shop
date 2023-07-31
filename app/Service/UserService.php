@@ -9,6 +9,7 @@
 namespace App\Service;
 
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use App\Models\UserModel;
 use App\Utils\Tools;
 use Illuminate\Support\Facades\DB;
@@ -99,6 +100,18 @@ class UserService
     }
     public function getList($request)
     {
+        $type =  $request->get('type') ?? false;
+//        当没有指定type值得时候以分页形式返回
+        if($type == 'select'){
+//            当为select为下拉款返回全部
+            $data = [];
+            $selectRow = UserModel::where('is_del','=','0')->select('id','name','email')->get();
+            if(!empty($selectRow)){
+                $data = $selectRow->toArray();
+            }
+            logsService::Logs('cx','请求用户下拉框-类型为'. $request->get('type').'的记录',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
+            return  MsgService::msg(200, $data);
+        }
         $resource = CommonService::getList(UserModel::class,$request);
         $data['data'] =UserResource::collection($resource['resource']);
         $data['total'] = $resource['count'];
