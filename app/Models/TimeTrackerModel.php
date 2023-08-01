@@ -5,9 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class TimeTrackerModel extends Model
 {
     use HasFactory;
+
+    /**
+     * 与模型关联的表名
+     *
+     * @var string
+     */
+
     protected $table = 'time_tracker';
     /**
      * 与表关联的主键
@@ -23,5 +31,7 @@ class TimeTrackerModel extends Model
     public $timestamps = false;
 
 
+
     public static $queryField = ['time_mark'];
+
 }
