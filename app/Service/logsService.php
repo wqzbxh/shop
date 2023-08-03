@@ -9,12 +9,18 @@
 namespace App\Service;
 
 use App\Http\Middleware\AuthMiddleware;
+use App\Logging\RabbitMQMange;
 use App\Models\LogsModel;
 use App\Models\ModificationlogsModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 class logsService
 {
+
 
     const ACTIONTYPE = [
         'dl' => '登录',
@@ -46,6 +52,7 @@ class logsService
     public static function Logs($action = 'ty',$desc,$request_url,$request_method,$request_payload,$response_code,$response_payload,$user_email = '',$user_id = '')
     {
         // 通过Request对象获取IP地址
+
         $request = Request::capture();
         $item['username'] = $user_email ? $user_email :  AuthMiddleware::$userInfo['email'];
         $item['user_id'] =  $user_id ? $user_id : AuthMiddleware::$userInfo['user_id'];
@@ -58,7 +65,10 @@ class logsService
         $item['request_payload'] = $request_payload;
         $item['response_code'] = $response_code;
         $item['response_payload'] = $response_payload;
-        LogsModel::insert($item);
+        (new RabbitMQMange())->produce(json_encode($item),'logqueue','Logexchange','AMQP_EX_TYPE_DIRECT');
+//        LogsModel::insert($item);
     }
+
+
 }
 

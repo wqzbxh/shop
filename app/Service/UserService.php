@@ -115,6 +115,7 @@ class UserService
         $resource = CommonService::getList(UserModel::class,$request);
         $data['data'] =UserResource::collection($resource['resource']);
         $data['total'] = $resource['count'];
+        logsService::Logs('cx','请求分页用户的记录',$request->url(),$request->method(),serialize($request->getContent()),200, serialize([]));
         return  MsgService::msg(200, $data);
     }
 }

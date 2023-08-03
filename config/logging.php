@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'rabbitmq'),
 
     /*
     |--------------------------------------------------------------------------
@@ -53,7 +53,11 @@ return [
             'channels' => ['single'],
             'ignore_exceptions' => false,
         ],
-
+        'rabbitmq' => [
+            'driver' => 'custom',
+            'via' => App\Logging\RabbitMQLogger::class,
+            // ...
+        ],
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel_'.Date('Y-m-d').'.log'),
@@ -113,6 +117,7 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
     ],
 
 ];
